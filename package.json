@@ -9,7 +9,8 @@
   "author": "Deshna Doshi",
   "license": "ISC",
   "devDependencies": {
-    "jasmine": "^5.1.0"
+    "jasmine": "^5.1.0",
+    "supertest": "^6.3.4"
   },
   "dependencies": {
     "acorn": "^8.11.3",

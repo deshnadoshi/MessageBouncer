@@ -1,0 +1,14 @@
+{
+  "name": "software-engineering-assignment-5",
+  "version": "1.0.0",
+  "description": "Software Engineering Assignment 5, due 2/26/2024",
+  "main": "message_bouncer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Deshna Doshi",
+  "license": "ISC",
+  "devDependencies": {
+    "jasmine": "^5.1.0"
+  }
+}

@@ -1,6 +1,10 @@
 const http = require('http');
 const querystring = require('querystring');
 const xml2js = require('xml2js');
+const acorn = require('acorn');
+const css = require('css');
+const cheerio = require('cheerio');
+
 
 
 const server = http.createServer((req, res) => {
@@ -56,17 +60,24 @@ function parseBody(contentType, body) {
     } else if (contentType === 'text/plain') {
         return { message: body };
     } else if (contentType === "text/html"){
-
+        const $ = cheerio.load(body);
+        return { parsedHtml: $('body').html() };
     } else if (contentType === "text/css"){
-        
+        return css.parse(body);
     } else if (contentType === "text/javascript"){
-        
-    } else if (contentType === "text/xml"){
-        
-    } else if (contentType ===  "application/xml"){
-        
-    } else if (contentType === "application/x-www-form-urlencoded"){
+        return acorn.parse(body, { ecmaVersion: 'latest' });
+    } else if (contentType === "text/xml" || contentType === "application/xml"){
+        xml2js.parseString(body, (err, result) => {
+            if (err) {
+                throw new Error('Error parsing XML.');
+            }
+            
+            message = result;
+        });
+        return { message }; 
 
+    } else if (contentType === "application/x-www-form-urlencoded"){
+        return querystring.parse(body);
     }
 }
 

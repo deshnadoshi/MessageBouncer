@@ -19,7 +19,7 @@ const server = http.createServer((req, res) => {
         if (isValidContentType(contentType) == false){
             // The content type stored in header is not in the list of accepted content types
             res.writeHead(415, { 'Content-Type': 'text/plain' });
-            res.end('Unsupported Media Type. Supported types: text/plain, text/html, text/css, text/javascript, text/xml, application/json, application/xml, application/x-www-form-urlencoded');
+            res.end('Unsupported Media Type. Supported types: text/plain, text/html, text/css, text/javascript, text/xml, application/javascript, application/json, application/xml, application/x-www-form-urlencoded');
         }
 
         let parsedBody;
@@ -63,12 +63,12 @@ function parseBody(contentType, body) {
         return { parsedHtml: $('body').html() };
     } else if (contentType === "text/css"){
         return css.parse(body);
-    } else if (contentType === "text/javascript"){
+    } else if (contentType === "text/javascript" || contentType === "application/javascript"){
         return acorn.parse(body, { ecmaVersion: 'latest' });
     } else if (contentType === "text/xml" || contentType === "application/xml"){
         xml2js.parseString(body, (err, result) => {
             if (err) {
-                throw new Error('Error parsing XML.');
+                return err; 
             }
             
             message = result;

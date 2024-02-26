@@ -13,28 +13,50 @@ const server = http.createServer((req, res) => {
         body += chunk;
     });
   
+    // req.on('end', () => {
+    //     const contentType = req.headers['content-type'];
+  
+    //     if (isValidContentType(contentType) == false){
+    //         // The content type stored in header is not in the list of accepted content types
+    //         res.writeHead(415, { 'Content-Type': 'text/plain' });
+    //         res.end('Unsupported Media Type. Supported types: text/plain, text/html, text/css, text/javascript, text/xml, application/javascript, application/json, application/xml, application/x-www-form-urlencoded');
+    //     }
+
+    //     let parsedBody;
+
+    //     try {
+    //         parsedBody = parseBody(contentType, body);
+    //     } catch (error) {
+    //         res.writeHead(400, { 'Content-Type': 'text/plain' });
+    //         res.end(`Bad Request. ${error.message}`);
+    //         return;
+    //     }
+  
+    //     res.writeHead(200, { 'Content-Type': 'application/json' });
+    //     res.end(JSON.stringify(parsedBody));
+    // });
     req.on('end', () => {
         const contentType = req.headers['content-type'];
-  
-        if (isValidContentType(contentType) == false){
-            // The content type stored in header is not in the list of accepted content types
+    
+        if (!isValidContentType(contentType)) {
             res.writeHead(415, { 'Content-Type': 'text/plain' });
             res.end('Unsupported Media Type. Supported types: text/plain, text/html, text/css, text/javascript, text/xml, application/javascript, application/json, application/xml, application/x-www-form-urlencoded');
-        }
-
-        let parsedBody;
-
-        try {
-            parsedBody = parseBody(contentType, body);
-        } catch (error) {
-            res.writeHead(400, { 'Content-Type': 'text/plain' });
-            res.end(`Bad Request. ${error.message}`);
             return;
         }
-  
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(parsedBody));
+    
+        parseBody(contentType, body, (err, parsedBody) => {
+            if (err) {
+                res.writeHead(400, { 'Content-Type': 'text/plain' });
+                res.end(`Bad Request. ${err.message}`);
+                return;
+            }
+    
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(parsedBody));
+        });
     });
+    
+
 });
   
 /**
@@ -53,32 +75,60 @@ function isValidContentType(contentType) {
     return false; 
 }
   
-function parseBody(contentType, body) {
+// function parseBody(contentType, body) {
+//     if (contentType === 'application/json') {
+//         return JSON.parse(body);
+//     } else if (contentType === 'text/plain') {
+//         return { message: body };
+//     } else if (contentType === "text/html"){
+//         const $ = cheerio.load(body);
+//         return { parsedHtml: $('body').html() };
+//     } else if (contentType === "text/css"){
+//         return css.parse(body);
+//     } else if (contentType === "text/javascript" || contentType === "application/javascript"){
+//         return acorn.parse(body, { ecmaVersion: 'latest' });
+//     } else if (contentType === "text/xml" || contentType === "application/xml"){
+//         xml2js.parseString(body, (err, result) => {
+//             if (err) {
+//                 return err; 
+//             }
+            
+//             message = result;
+//         });
+//         return { message }; 
+
+//     } else if (contentType === "application/x-www-form-urlencoded"){
+//         return querystring.parse(body);
+//     }
+// }
+
+function parseBody(contentType, body, callback) {
     if (contentType === 'application/json') {
-        return JSON.parse(body);
+        callback(null, JSON.parse(body));
     } else if (contentType === 'text/plain') {
-        return { message: body };
+        callback(null, { message: body });
     } else if (contentType === "text/html"){
         const $ = cheerio.load(body);
-        return { parsedHtml: $('body').html() };
+        callback(null, { parsedHtml: $('body').html() });
     } else if (contentType === "text/css"){
-        return css.parse(body);
+        callback(null, css.parse(body));
     } else if (contentType === "text/javascript" || contentType === "application/javascript"){
-        return acorn.parse(body, { ecmaVersion: 'latest' });
+        callback(null, acorn.parse(body, { ecmaVersion: 'latest' }));
     } else if (contentType === "text/xml" || contentType === "application/xml"){
         xml2js.parseString(body, (err, result) => {
             if (err) {
-                return err; 
+                callback(err);
+            } else {
+                callback(null, { message: result });
             }
-            
-            message = result;
         });
-        return { message }; 
-
     } else if (contentType === "application/x-www-form-urlencoded"){
-        return querystring.parse(body);
+        callback(null, querystring.parse(body));
+    } else {
+        callback(new Error('Unsupported Content Type'));
     }
 }
+
 
 
 const port = 3000;

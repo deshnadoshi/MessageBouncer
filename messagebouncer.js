@@ -7,6 +7,9 @@ const cheerio = require('cheerio');
 const validator = require('html-validator'); 
 
 
+/**
+ * Create the server to process HTTP requests. 
+ */
 const server = http.createServer((req, res) => {
     let body = '';
   
@@ -56,7 +59,9 @@ function isValidContentType(contentType) {
 }
   
 
-
+/**
+ * Parse the body of a HTTP Request that is of an acceptable content-type header. 
+ */
 function parseBody(contentType, body, callback) {
     try {
         if (contentType === 'application/json') {
@@ -92,7 +97,6 @@ function parseBody(contentType, body, callback) {
                 }
             });
         } else if (contentType === "application/x-www-form-urlencoded") {
-            // Validate URL-encoded form data
             const decodedBody = decodeURIComponent(body);
             const keyValuePairs = decodedBody.split('&');
 
@@ -116,6 +120,9 @@ function parseBody(contentType, body, callback) {
 
 const port = 3000;
 
+/**
+ * Initialize the port for the server to listen on. 
+ */
 server.listen(port, () => {
     console.log(`Server listening on port ${port}`);
 });

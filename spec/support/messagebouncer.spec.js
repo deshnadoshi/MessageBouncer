@@ -1,60 +1,28 @@
-const http = require('http');
-const request = require('supertest');
-const app = require('../../messagebounder.js'); // Replace with the actual path to your server file
+const supertest = require('supertest');
+const { server } = require('../../messagebouncer'); // Replace with the actual filename
 
-describe('HTTP Server Tests', () => {
-    let server;
+const app = supertest(server);
 
-    beforeAll(() => {
-        server = http.createServer(app);
-        server.listen(0); // Auto-assigns an available port
+describe('Your Server Tests', () => {
+    it('should handle valid JSON content type', async () => {
+        const response = await app
+            .post('/')
+            .send(JSON.stringify({ key: 'value' }))
+            .set('Content-Type', 'application/json');
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ key: 'value' });
     });
 
-    afterAll((done) => {
-        server.close(done);
+    it('should handle invalid content type', async () => {
+        const response = await app
+            .post('/')
+            .send('Invalid Body')
+            .set('Content-Type', 'application/octet-stream'); // Set an unsupported content type
+
+        expect(response.status).toBe(415);
+        expect(response.text).toBe('Unsupported Media Type. Supported types: text/plain, text/html, text/css, text/javascript, text/xml, application/javascript, application/json, application/xml, application/x-www-form-urlencoded');
     });
 
-    describe('POST / endpoint', () => {
-        it('should return 200 with parsed JSON body for application/json', (done) => {
-            const requestBody = { key: 'value' };
-            request(server)
-                .post('/')
-                .set('Content-Type', 'application/json')
-                .send(JSON.stringify(requestBody))
-                .expect(200)
-                .expect('Content-Type', /json/)
-                .end((err, res) => {
-                    expect(err).toBeNull();
-                    expect(res.body).toEqual(requestBody);
-                    done();
-                });
-        });
-
-        // Add similar tests for other content types and scenarios
-        // ...
-
-        it('should return 415 for unsupported content type', (done) => {
-            const requestBody = { key: 'value' };
-            request(server)
-                .post('/')
-                .set('Content-Type', 'application/pdf') // Unsupported type
-                .send(JSON.stringify(requestBody))
-                .expect(415)
-                .expect('Content-Type', 'text/plain')
-                .end(done);
-        });
-
-        it('should return 400 for bad request', (done) => {
-            request(server)
-                .post('/')
-                .set('Content-Type', 'application/json')
-                .send('Invalid JSON') // Sending invalid JSON
-                .expect(400)
-                .expect('Content-Type', 'text/plain')
-                .end(done);
-        });
-    });
-
-    // Add more test cases for different endpoints or scenarios as needed
-    // ...
+    // Add more test cases for different content types and scenarios
 });

@@ -4,6 +4,7 @@ const xml2js = require('xml2js');
 const acorn = require('acorn');
 const css = require('css');
 const cheerio = require('cheerio');
+const validator = require('html-validator'); 
 
 
 const server = http.createServer((req, res) => {
@@ -82,6 +83,52 @@ function isValidContentType(contentType) {
 //     }
 // }
 
+// function parseBody(contentType, body, callback) {
+//     try {
+//         if (contentType === 'application/json') {
+//             const parsedJson = JSON.parse(body);
+//             callback(null, parsedJson);
+//         } else if (contentType === 'text/plain') {
+//             callback(null, { message: body });
+//         } else if (contentType === "text/html"){
+//             const $ = cheerio.load(body);
+//             callback(null, { parsedHtml: $('body').html() });
+//         } else if (contentType === "text/css"){
+//             const parsedCss = css.parse(body);
+//             callback(null, parsedCss);
+//         } else if (contentType === "text/javascript" || contentType === "application/javascript"){
+//             const parsedJs = acorn.parse(body, { ecmaVersion: 'latest' });
+//             callback(null, parsedJs);
+//         } else if (contentType === "text/xml" || contentType === "application/xml"){
+//             xml2js.parseString(body, (err, result) => {
+//                 if (err) {
+//                     callback(err);
+//                 } else {
+//                     callback(null, { message: result });
+//                 }
+//             });
+//         } else if (contentType === "application/x-www-form-urlencoded"){
+           
+//             const decodedBody = decodeURIComponent(body);
+//             const keyValuePairs = decodedBody.split('&');
+           
+//             keyValuePairs.forEach(pair => {
+//                 const [key, value] = pair.split('=');
+//                 if (!key || !value || key.includes('=') || value.includes('=')) {
+//                     throw new Error('Malformed URL-encoded form data');
+//                 }
+//             });           
+//             const parsedForm = querystring.parse(body);
+//             callback(null, parsedForm);
+//         } else {
+//             callback(new Error('Unsupported Content Type'));
+//         }
+//     } catch (error) {
+//         callback(new Error(`Failed to parse body. ${error.message}`));
+//     }
+// }
+
+
 function parseBody(contentType, body, callback) {
     try {
         if (contentType === 'application/json') {
@@ -89,16 +136,26 @@ function parseBody(contentType, body, callback) {
             callback(null, parsedJson);
         } else if (contentType === 'text/plain') {
             callback(null, { message: body });
-        } else if (contentType === "text/html"){
-            const $ = cheerio.load(body);
-            callback(null, { parsedHtml: $('body').html() });
-        } else if (contentType === "text/css"){
+        } else if (contentType === "text/html") {
+            validator({ data: body, isFragment: true })
+                .then((data) => {
+                    if (data.messages && data.messages.length > 0) {
+                        callback(new Error('Invalid HTML content'));
+                    } else {
+                        const $ = cheerio.load(body);
+                        callback(null, { parsedHtml: $('body').html() });
+                    }
+                })
+                .catch((error) => {
+                    callback(error);
+                });
+        } else if (contentType === "text/css") {
             const parsedCss = css.parse(body);
             callback(null, parsedCss);
-        } else if (contentType === "text/javascript" || contentType === "application/javascript"){
+        } else if (contentType === "text/javascript" || contentType === "application/javascript") {
             const parsedJs = acorn.parse(body, { ecmaVersion: 'latest' });
             callback(null, parsedJs);
-        } else if (contentType === "text/xml" || contentType === "application/xml"){
+        } else if (contentType === "text/xml" || contentType === "application/xml") {
             xml2js.parseString(body, (err, result) => {
                 if (err) {
                     callback(err);
@@ -106,17 +163,18 @@ function parseBody(contentType, body, callback) {
                     callback(null, { message: result });
                 }
             });
-        } else if (contentType === "application/x-www-form-urlencoded"){
-           
+        } else if (contentType === "application/x-www-form-urlencoded") {
+            // Validate URL-encoded form data
             const decodedBody = decodeURIComponent(body);
             const keyValuePairs = decodedBody.split('&');
-           
+
             keyValuePairs.forEach(pair => {
                 const [key, value] = pair.split('=');
                 if (!key || !value || key.includes('=') || value.includes('=')) {
                     throw new Error('Malformed URL-encoded form data');
                 }
-            });           
+            });
+
             const parsedForm = querystring.parse(body);
             callback(null, parsedForm);
         } else {
@@ -126,6 +184,7 @@ function parseBody(contentType, body, callback) {
         callback(new Error(`Failed to parse body. ${error.message}`));
     }
 }
+
 
 const port = 3000;
 

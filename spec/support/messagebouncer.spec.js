@@ -118,57 +118,57 @@ describe('Message Bouncer', () => {
     });
     
 
-// Test Case 10: It should handle invalid HTML content type.
-it('should handle invalid HTML content type', async () => {
-    const invalidHtmlContent = 'Invalid HTML';
+    // Test Case 10: It should handle invalid HTML content type.
+    it('should handle invalid HTML content type', async () => {
+        const invalidHtmlContent = '<bdy> Invalid HTML <body>';
 
-    const response = await app
-        .post('/')
-        .send(invalidHtmlContent)
-        .set('Content-Type', 'text/html');
+        const response = await app
+            .post('/')
+            .send(invalidHtmlContent)
+            .set('Content-Type', 'text/html');
 
-    expect(response.status).toBe(400);
-    expect(response.text).toContain('Bad Request');
-});
+        expect(response.status).toBe(400);
+        expect(response.text).toContain('Bad Request');
+    });
 
-// Test Case 11: It should handle invalid CSS content type.
-it('should handle invalid CSS content type', async () => {
-    const invalidCssContent = 'invalid CSS content';
+    // Test Case 11: It should handle invalid CSS content type.
+    it('should handle invalid CSS content type', async () => {
+        const invalidCssContent = 'invalid CSS content';
 
-    const response = await app
-        .post('/')
-        .send(invalidCssContent)
-        .set('Content-Type', 'text/css');
+        const response = await app
+            .post('/')
+            .send(invalidCssContent)
+            .set('Content-Type', 'text/css');
 
-    expect(response.status).toBe(400);
-    expect(response.text).toContain('Bad Request');
-});
+        expect(response.status).toBe(400);
+        expect(response.text).toContain('Bad Request');
+    });
 
-// Test Case 12: It should handle invalid Javascript content type.
-it('should handle invalid JavaScript content type', async () => {
-    const invalidJsContent = 'invalid JavaScript content';
+    // Test Case 12: It should handle invalid Javascript content type.
+    it('should handle invalid JavaScript content type', async () => {
+        const invalidJsContent = 'invalid JavaScript content';
 
-    const response = await app
-        .post('/')
-        .send(invalidJsContent)
-        .set('Content-Type', 'text/javascript');
+        const response = await app
+            .post('/')
+            .send(invalidJsContent)
+            .set('Content-Type', 'text/javascript');
 
-    expect(response.status).toBe(400);
-    expect(response.text).toContain('Bad Request');
-});
+        expect(response.status).toBe(400);
+        expect(response.text).toContain('Bad Request');
+    });
 
-// Test Case 13: It should handle invalid XML content type.
-it('should handle invalid XML content type', async () => {
-    const invalidXmlContent = 'This is not valid XML';
+    // Test Case 13: It should handle invalid XML content type.
+    it('should handle invalid XML content type', async () => {
+        const invalidXmlContent = 'This is not valid XML';
 
-    const response = await app
-        .post('/')
-        .send(invalidXmlContent)
-        .set('Content-Type', 'text/xml');
+        const response = await app
+            .post('/')
+            .send(invalidXmlContent)
+            .set('Content-Type', 'text/xml');
 
-    expect(response.status).toBe(400);
-    expect(response.text).toContain('Bad Request');
-});
+        expect(response.status).toBe(400);
+        expect(response.text).toContain('Bad Request');
+    });
 
     // Test Case 14: It should handle invalid URL Encoded form type.
     it('should handle invalid URL Encoded form content type', async () => {

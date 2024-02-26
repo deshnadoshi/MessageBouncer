@@ -41,7 +41,7 @@ describe('Message Bouncer', () => {
 
     // Test Case 4: It should handle a valid HTML text content type.
     it('should handle valid HTML content type', async () => {
-        const htmlContent = '<h1>This is HTML!</h1>'; 
+        const htmlContent = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>My HTML Page</title></head><body><h1>Hello, World!</h1><p>This is a short HTML document.</p></body></html>'; 
 
         const response = await app
             .post('/')
@@ -49,7 +49,7 @@ describe('Message Bouncer', () => {
             .set('Content-Type', 'text/html');
 
         expect(response.status).toBe(200);
-        expect(response.body).toEqual({ parsedHtml: '<h1>This is HTML!</h1>' });
+        expect(response.body).toEqual({ parsedHtml: '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>My HTML Page</title></head><body><h1>Hello, World!</h1><p>This is a short HTML document.</p></body></html>' });
     });
 
     // Test Case 5: It should handle a valid CSS content type.

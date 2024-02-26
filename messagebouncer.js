@@ -56,78 +56,6 @@ function isValidContentType(contentType) {
 }
   
 
-// function parseBody(contentType, body, callback) {
-//     if (contentType === 'application/json') {
-//         callback(null, JSON.parse(body));
-//     } else if (contentType === 'text/plain') {
-//         callback(null, { message: body });
-//     } else if (contentType === "text/html"){
-//         const $ = cheerio.load(body);
-//         callback(null, { parsedHtml: $('body').html() });
-//     } else if (contentType === "text/css"){
-//         callback(null, css.parse(body));
-//     } else if (contentType === "text/javascript" || contentType === "application/javascript"){
-//         callback(null, acorn.parse(body, { ecmaVersion: 'latest' }));
-//     } else if (contentType === "text/xml" || contentType === "application/xml"){
-//         xml2js.parseString(body, (err, result) => {
-//             if (err) {
-//                 callback(err);
-//             } else {
-//                 callback(null, { message: result });
-//             }
-//         });
-//     } else if (contentType === "application/x-www-form-urlencoded"){
-//         callback(null, querystring.parse(body));
-//     } else {
-//         callback(new Error('Unsupported Content Type'));
-//     }
-// }
-
-// function parseBody(contentType, body, callback) {
-//     try {
-//         if (contentType === 'application/json') {
-//             const parsedJson = JSON.parse(body);
-//             callback(null, parsedJson);
-//         } else if (contentType === 'text/plain') {
-//             callback(null, { message: body });
-//         } else if (contentType === "text/html"){
-//             const $ = cheerio.load(body);
-//             callback(null, { parsedHtml: $('body').html() });
-//         } else if (contentType === "text/css"){
-//             const parsedCss = css.parse(body);
-//             callback(null, parsedCss);
-//         } else if (contentType === "text/javascript" || contentType === "application/javascript"){
-//             const parsedJs = acorn.parse(body, { ecmaVersion: 'latest' });
-//             callback(null, parsedJs);
-//         } else if (contentType === "text/xml" || contentType === "application/xml"){
-//             xml2js.parseString(body, (err, result) => {
-//                 if (err) {
-//                     callback(err);
-//                 } else {
-//                     callback(null, { message: result });
-//                 }
-//             });
-//         } else if (contentType === "application/x-www-form-urlencoded"){
-           
-//             const decodedBody = decodeURIComponent(body);
-//             const keyValuePairs = decodedBody.split('&');
-           
-//             keyValuePairs.forEach(pair => {
-//                 const [key, value] = pair.split('=');
-//                 if (!key || !value || key.includes('=') || value.includes('=')) {
-//                     throw new Error('Malformed URL-encoded form data');
-//                 }
-//             });           
-//             const parsedForm = querystring.parse(body);
-//             callback(null, parsedForm);
-//         } else {
-//             callback(new Error('Unsupported Content Type'));
-//         }
-//     } catch (error) {
-//         callback(new Error(`Failed to parse body. ${error.message}`));
-//     }
-// }
-
 
 function parseBody(contentType, body, callback) {
     try {
@@ -137,13 +65,13 @@ function parseBody(contentType, body, callback) {
         } else if (contentType === 'text/plain') {
             callback(null, { message: body });
         } else if (contentType === "text/html") {
-            validator({ data: body, isFragment: true })
+            validator({ data: body, isFragment: false })
                 .then((data) => {
                     if (data.messages && data.messages.length > 0) {
                         callback(new Error('Invalid HTML content'));
                     } else {
-                        const $ = cheerio.load(body);
-                        callback(null, { parsedHtml: $('body').html() });
+                        const $ = cheerio.load(body, { decodeEntities: false });
+                        callback(null, { parsedHtml: $.html() }); 
                     }
                 })
                 .catch((error) => {

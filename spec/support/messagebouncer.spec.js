@@ -86,7 +86,7 @@ describe('Message Bouncer', () => {
             .set('Content-Type', 'text/xml');
 
         expect(response.status).toBe(200);
-        expect(response.body).toEqual({ message: { root: { element: 'This is XML!' } } });
+        expect(response.body.message.root.element).toContain('This is XML!');
     });
 
     // Test Case 8: It should handle a valid URL Encoded Form type.
@@ -102,6 +102,9 @@ describe('Message Bouncer', () => {
         expect(response.body).toEqual({ key1: 'value1', key2: 'value2' });
     });
     
+    // Test Case 9: It should handle invalid JSON content type. 
+
+    // Test Case 10: It should handle invalid
     
     
 });

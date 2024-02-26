@@ -41,7 +41,7 @@ describe('Message Bouncer', () => {
 
     // Test Case 4: It should handle a valid HTML text content type.
     it('should handle valid HTML content type', async () => {
-        const htmlContent = '<html><body><h1>This is HTML!</h1></body></html>';
+        const htmlContent = '<h1>This is HTML!</h1>'; 
 
         const response = await app
             .post('/')

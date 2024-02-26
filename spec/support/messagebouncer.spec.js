@@ -1,5 +1,5 @@
 const supertest = require('supertest');
-const { server } = require('../../messagebouncer'); // Replace with the actual filename
+const { server } = require('../../messagebouncer'); 
 
 const app = supertest(server);
 
@@ -18,11 +18,11 @@ describe('Your Server Tests', () => {
         const response = await app
             .post('/')
             .send('Invalid Body')
-            .set('Content-Type', 'application/octet-stream'); // Set an unsupported content type
+            .set('Content-Type', 'application/octet-stream'); 
 
         expect(response.status).toBe(415);
         expect(response.text).toBe('Unsupported Media Type. Supported types: text/plain, text/html, text/css, text/javascript, text/xml, application/javascript, application/json, application/xml, application/x-www-form-urlencoded');
     });
 
-    // Add more test cases for different content types and scenarios
+    
 });
